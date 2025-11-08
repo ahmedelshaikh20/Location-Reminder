@@ -1,4 +1,10 @@
 package com.example.locationreminder.navigation
 
-class NavRoutes {
-}
+import kotlinx.serialization.Serializable
+
+@Serializable
+object ReminderListScreen
+
+@Serializable
+data class MapBoxScreen(val reminderId: Long?)
+
