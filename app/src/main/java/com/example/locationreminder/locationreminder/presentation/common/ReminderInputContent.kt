@@ -33,14 +33,14 @@ fun ReminderInputContent(
 
         OutlinedTextField(
             value = state.description,
-            onValueChange = { onEvent(MapBoxScreenEvents.onDescriptionChanged(it)) },
+            onValueChange = { onEvent(MapBoxScreenEvents.OnDescriptionChanged(it)) },
             label = { Text("New Reminder") },
             placeholder = { Text("e.g., Don't forget the dry cleaning!") },
             modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
             singleLine = true
         )
         Button(
-            onClick = { onEvent(MapBoxScreenEvents.onSaveButtonClick) },
+            onClick = { onEvent(MapBoxScreenEvents.OnSaveButtonClick) },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp)
@@ -49,9 +49,5 @@ fun ReminderInputContent(
             Text(if (state.reminderId  == -1) "Save" else "Update")
         }
 
-//        // Optional: Error/Success Message Display
-//        if (state.userMessage != null) {
-//            Text(state.userMessage, color = MaterialTheme.colorScheme.error)
-//        }
     }
 }
