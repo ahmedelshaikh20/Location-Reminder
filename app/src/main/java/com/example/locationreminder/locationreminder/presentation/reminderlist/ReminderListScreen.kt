@@ -18,47 +18,77 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.locationreminder.locationreminder.presentation.common.ReminderCard
-import com.example.locationreminder.navigation.NavRoutes
+import com.example.locationreminder.locationreminder.presentation.model.ReminderDisplay
+import com.example.locationreminder.navigation.MapBoxScreen
+import org.koin.androidx.compose.koinViewModel
+
+
+@Composable
+fun ReminderListScreen(
+  viewmodel: ReminderListScreenViewmodel = koinViewModel(),
+  navController: NavController
+) {
+  val state by viewmodel.loadedState.collectAsStateWithLifecycle()
+  ReminderListContent(onFloatingPointClick = { navController.navigate(MapBoxScreen(reminderId = null)) },
+    reminders = state.reminders)
+
+}
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ReminderListScreen(viewmodel: ReminderListScreenViewmodel, navController: NavController) {
-  val reminders = viewmodel.loadedState.collectAsState().value.reminders
+fun ReminderListContent(onFloatingPointClick: (Int?) -> Unit, reminders: List<ReminderDisplay>) {
   Scaffold(
-    modifier = Modifier.fillMaxSize().padding(top = 16.dp),
+    modifier = Modifier
+      .fillMaxSize()
+      .padding(top = 16.dp),
     topBar = {
       TopAppBar(
-        title = { Text(text = "Location Reminders", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleLarge) },
+        title = {
+          Text(
+            text = "Location Reminders",
+            fontWeight = FontWeight.Bold,
+            style = MaterialTheme.typography.titleLarge
+          )
+        },
         windowInsets = WindowInsets.captionBar
       )
     },
     floatingActionButton = {
       FloatingActionButton(
-      onClick = {
-        navController.navigate(NavRoutes.MAP_SCREEN_BASE)
-      },
-      containerColor = MaterialTheme.colorScheme.primary
-    ) {
-      Icon(
-        imageVector = Icons.Default.Add,
-        contentDescription = "Add New Reminder",
-        tint = MaterialTheme.colorScheme.onPrimary
-      )
-    }
-} ){ paddingValues ->
-
-    LazyColumn(modifier = Modifier
+        onClick = {
+          onFloatingPointClick(null)
+        },
+        containerColor = MaterialTheme.colorScheme.primary
+      ) {
+        Icon(
+          imageVector = Icons.Default.Add,
+          contentDescription = "Add New Reminder",
+          tint = MaterialTheme.colorScheme.onPrimary
+        )
+      }
+    }) { paddingValues ->
+    LazyColumn(
+      modifier = Modifier
         .fillMaxSize()
         .padding(paddingValues),
       verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-      items(reminders) { item -> ReminderCard(modifier = Modifier.padding(start = 16.dp , end = 16.dp), reminder = item) }
+      items(reminders) { item ->
+        ReminderCard(
+          modifier = Modifier.padding(
+            start = 16.dp,
+            end = 16.dp
+          ), reminder = item
+        )
+      }
     }
   }
 }

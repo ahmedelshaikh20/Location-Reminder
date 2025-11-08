@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.locationreminder.locationreminder.domain.model.Reminder
 import com.example.locationreminder.locationreminder.domain.model.toDisplayModel
-import com.example.locationreminder.locationreminder.domain.repository.ReminderRepository
 import com.example.locationreminder.locationreminder.domain.usecases.GetAllRemindersUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,7 +20,6 @@ class ReminderListScreenViewmodel(getAllRemindersUseCase: GetAllRemindersUseCase
 
   init {
     viewModelScope.launch {
-
       val remindersFlow: Flow<List<Reminder>> = getAllRemindersUseCase.execute()
       remindersFlow.map { domainList ->
           domainList.map { it.toDisplayModel() }
@@ -33,7 +31,7 @@ class ReminderListScreenViewmodel(getAllRemindersUseCase: GetAllRemindersUseCase
 
   fun onEvent( event: ReminderListScreenEvents){
     when(event){
-      ReminderListScreenEvents.onAddReminderClick -> {
+      ReminderListScreenEvents.OnAddReminderClick -> {
 
       }
     }
