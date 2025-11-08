@@ -15,15 +15,16 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.locationreminder.locationreminder.presentation.common.ReminderInputContent
-import com.example.locationreminder.navigation.NavigationEvent
 import com.mapbox.maps.MapboxExperimental
 import com.mapbox.maps.extension.compose.MapEffect
 import com.mapbox.maps.extension.compose.MapboxMap
@@ -34,19 +35,14 @@ import com.mapbox.maps.plugin.gestures.OnMapClickListener
 import com.mapbox.maps.plugin.gestures.addOnMapClickListener
 import com.mapbox.maps.plugin.locationcomponent.createDefault2DPuck
 import com.mapbox.maps.plugin.locationcomponent.location
+import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(MapboxExperimental::class)
 @Composable
-fun MapBoxScreen(viewmodel: MapBoxScreenViewmodel, navController: NavController, reminderId: Int?) {
+fun MapBoxScreen(viewmodel: MapBoxScreenViewmodel= koinViewModel(), navController: NavController, reminderId: Long?) {
   val localContext = LocalContext.current
-  val state = viewmodel.loadedState.collectAsState().value
-  val mapViewportState = rememberMapViewportState {
-    setCameraOptions {
-      zoom(9.0)
-      pitch(0.0)
-      bearing(0.0)
-    }
-  }
+  val state by viewmodel.loadedState.collectAsStateWithLifecycle()
+
   val launcher = rememberLauncherForActivityResult(
     contract = ActivityResultContracts.RequestMultiplePermissions()
   ) { permissionsList ->
@@ -54,18 +50,6 @@ fun MapBoxScreen(viewmodel: MapBoxScreenViewmodel, navController: NavController,
     if (isGranted) {
       // Go to your location
     } else {
-
-    }
-
-
-  }
-
-  LaunchedEffect(Unit) {
-    viewmodel.navigationEvents.collect{event ->
-      when(event){
-        NavigationEvent.NavigateBack -> {navController.popBackStack()}
-        is NavigationEvent.NavigateToMapScreen -> {}
-      }
     }
   }
   LaunchedEffect(Unit) {
@@ -75,46 +59,64 @@ fun MapBoxScreen(viewmodel: MapBoxScreenViewmodel, navController: NavController,
       launcher.launch(permissions.toTypedArray());
     }
   }
-Box(modifier = Modifier.fillMaxSize()){
-  MapboxMap(
-    Modifier.fillMaxSize(),
-    mapViewportState = mapViewportState
-  ) {
-    state.currPoint?.let { point ->
-      Marker(point = point,)
-    }
-    MapEffect(Unit) { mapView ->
-      mapView.location.updateSettings {
-        locationPuck = createDefault2DPuck(withBearing = true)
-        enabled = true
-        puckBearing = PuckBearing.COURSE
-        puckBearingEnabled = true
-      }
-      mapViewportState.transitionToFollowPuckState()
-      val mapClickListener = OnMapClickListener { clickPoint ->
-        viewmodel.onEvent(MapBoxScreenEvents.onClickOnMapLocation(clickPoint))
-        true
-      }
-      mapView.mapboxMap.addOnMapClickListener(mapClickListener)
 
-    }
-
-  }
-
-  Surface(modifier = Modifier.fillMaxWidth().padding(16.dp)
-    .align(Alignment.BottomCenter).clip(RoundedCornerShape(10.dp)),
-    shadowElevation = 8.dp,
-    color = MaterialTheme.colorScheme.surface) {
-
-    ReminderInputContent(state) {
-      viewmodel.onEvent(it)
-    }
-
-  }
-
+  MapBoxContent(state, onEventClicked = { viewmodel.onEvent(it) })
 
 }
+
+
+@OptIn(MapboxExperimental::class)
+@Composable
+fun MapBoxContent(state : MapBoxScreenState , onEventClicked: (MapBoxScreenEvents) -> Unit){
+  val mapViewportState = rememberMapViewportState {
+    setCameraOptions {
+      zoom(9.0)
+      pitch(0.0)
+      bearing(0.0)
+    }
+  }
+  Box(modifier = Modifier.fillMaxSize()){
+    MapboxMap(
+      Modifier.fillMaxSize(),
+      mapViewportState = mapViewportState
+    ) {
+      state.currPoint?.let { point ->
+        Marker(point = point,)
+      }
+      MapEffect(Unit) { mapView ->
+        mapView.location.updateSettings {
+          locationPuck = createDefault2DPuck(withBearing = true)
+          enabled = true
+          puckBearing = PuckBearing.COURSE
+          puckBearingEnabled = true
+        }
+        mapViewportState.transitionToFollowPuckState()
+        val mapClickListener = OnMapClickListener { clickPoint ->
+          onEventClicked(MapBoxScreenEvents.OnClickOnMapLocation(clickPoint))
+          true
+        }
+        mapView.mapboxMap.addOnMapClickListener(mapClickListener)
+
+      }
+
+    }
+
+    Surface(modifier = Modifier.fillMaxWidth().padding(16.dp)
+      .align(Alignment.BottomCenter).clip(RoundedCornerShape(10.dp)),
+      shadowElevation = 8.dp,
+      color = MaterialTheme.colorScheme.surface) {
+
+      ReminderInputContent(state) {
+        onEventClicked(it)
+      }
+
+    }
+
+
+  }
 }
+
+
 
 
 val permissions = listOf(

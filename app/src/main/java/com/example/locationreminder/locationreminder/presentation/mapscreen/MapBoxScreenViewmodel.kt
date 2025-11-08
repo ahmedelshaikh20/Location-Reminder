@@ -7,7 +7,6 @@ import com.example.locationreminder.locationreminder.domain.usecases.SaveReminde
 import com.example.locationreminder.locationreminder.presentation.model.ReminderDisplay
 import com.example.locationreminder.locationreminder.presentation.model.ReminderStatus
 import com.example.locationreminder.locationreminder.presentation.model.toDomainModel
-import com.example.locationreminder.navigation.NavigationEvent
 import com.mapbox.geojson.Point
 import com.mapbox.search.autocomplete.PlaceAutocomplete
 import kotlinx.coroutines.channels.Channel
@@ -15,6 +14,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 
@@ -22,8 +22,7 @@ class MapBoxScreenViewmodel(val saveReminderUseCase: SaveReminderUseCase) : View
 
   private val _loadedState = MutableStateFlow(MapBoxScreenState())
   val loadedState : StateFlow<MapBoxScreenState> = _loadedState.asStateFlow()
-  private val navigationEventChannel = Channel<NavigationEvent>(Channel.BUFFERED)
-  val navigationEvents = navigationEventChannel.receiveAsFlow()
+
 
 
   init {
@@ -32,13 +31,13 @@ class MapBoxScreenViewmodel(val saveReminderUseCase: SaveReminderUseCase) : View
   private val placeAutocomplete = PlaceAutocomplete.create()
   fun onEvent(event : MapBoxScreenEvents){
     when(event){
-      is MapBoxScreenEvents.onClickOnMapLocation -> {
-        _loadedState.value = _loadedState.value.copy(currPoint = event.point)
+      is MapBoxScreenEvents.OnClickOnMapLocation -> {
+        _loadedState.update { it.copy(currPoint = event.point) }
       }
-      is MapBoxScreenEvents.onDescriptionChanged -> {
-        _loadedState.value = _loadedState.value.copy(description = event.description)
+      is MapBoxScreenEvents.OnDescriptionChanged -> {
+        _loadedState.update {  it.copy(description = event.description) }
       }
-      MapBoxScreenEvents.onSaveButtonClick -> {
+      MapBoxScreenEvents.OnSaveButtonClick -> {
         viewModelScope.launch {
 
           val reminderDisplay: ReminderDisplay? = _loadedState.value.currPoint?.let { point ->
@@ -54,16 +53,11 @@ class MapBoxScreenViewmodel(val saveReminderUseCase: SaveReminderUseCase) : View
           }
           reminderDisplay?.let {
             saveReminderUseCase.execute(reminderDisplay.toDomainModel())
-            navigationEventChannel.send(NavigationEvent.NavigateBack)
           }
         }
       }
     }
   }
-
-
-
-
 }
 
 
