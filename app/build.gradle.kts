@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     id("com.google.devtools.ksp")
+  id("org.jetbrains.kotlin.plugin.serialization") version "2.2.21"
 }
 
 android {
@@ -66,15 +67,13 @@ dependencies {
   //Mapbox Search Sdk
   implementation(libs.mapbox.search.android.ndk27)
   implementation(libs.place.autocomplete.ndk27)
-
+  implementation("com.google.android.gms:play-services-location:21.3.0")
   //Naviagtion Compose
   implementation(libs.androidx.navigation.compose)
 
   //Koin
-  implementation("io.insert-koin:koin-core:3.5.3") // Check for the latest version
+  implementation("io.insert-koin:koin-core:3.5.3")
   implementation(libs.koin.android)
-
-  // Koin for Jetpack Compose integration
   implementation(libs.koin.androidx.compose)
 
   //Room
@@ -82,6 +81,9 @@ dependencies {
   implementation(libs.androidx.room.ktx)
   ksp(libs.androidx.room.compiler)
 
+
+  //WorkManager
+  implementation(libs.androidx.work.runtime.ktx)
 
 
 }

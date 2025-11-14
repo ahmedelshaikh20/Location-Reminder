@@ -11,12 +11,14 @@ espressoCore = "3.7.0"
 lifecycleRuntimeKtx = "2.9.4"
 activityCompose = "1.11.0"
 composeBom = "2024.09.00"
+mapboxSdkServices = "6.14.0"
 mapboxSearchAndroid = "2.18.0"
 mapboxSearchAndroidNdk27 = "2.16.2"
 mapsComposeNdk27 = "11.16.2"
 navigationCompose = "2.9.5"
 placeAutocompleteNdk27 = "2.16.2"
 roomRuntime = "2.8.3"
+workRuntimeKtx = "2.11.0"
 
 [libraries]
 android-ndk27 = { module = "com.mapbox.maps:android-ndk27", version.ref = "androidNdk27" }
@@ -25,6 +27,7 @@ androidx-navigation-compose = { module = "androidx.navigation:navigation-compose
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomRuntime" }
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomRuntime" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
+androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntimeKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -40,6 +43,7 @@ androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 koin-android = { module = "io.insert-koin:koin-android", version.ref = "koinAndroid" }
 koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koinAndroidxCompose" }
+mapbox-sdk-services = { module = "com.mapbox.mapboxsdk:mapbox-sdk-services", version.ref = "mapboxSdkServices" }
 mapbox-search-android = { module = "com.mapbox.search:mapbox-search-android", version.ref = "mapboxSearchAndroid" }
 mapbox-search-android-ndk27 = { module = "com.mapbox.search:mapbox-search-android-ndk27", version.ref = "mapboxSearchAndroidNdk27" }
 maps-compose-ndk27 = { module = "com.mapbox.extension:maps-compose-ndk27", version.ref = "mapsComposeNdk27" }
@@ -49,4 +53,5 @@ place-autocomplete-ndk27 = { module = "com.mapbox.search:place-autocomplete-ndk2
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+ksp-plugin = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 
