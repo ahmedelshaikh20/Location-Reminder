@@ -2,6 +2,8 @@ package com.example.locationreminder
 
 import android.Manifest
 import android.app.Application
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
@@ -16,26 +18,22 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.GlobalContext.startKoin
 @OptIn(MapboxExperimental::class)
 class MyApp : Application() {
-  private val geofencingAppObserver: GeofencingAppObserver by inject()
   private val geofencingService: GeofencingService by inject()
 
   override fun onCreate() {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+      val channel = NotificationChannel("LocationServiceChannel", "Location Monitoring", NotificationManager.IMPORTANCE_LOW)
+      val manager = getSystemService(NotificationManager::class.java)
+      manager.createNotificationChannel(channel)
+    }
     startKoin {
       androidContext(applicationContext)
       modules(appModule)
     }
-    registerGeofenceObserver()
     super.onCreate()
   }
 
-  @OptIn(MapboxExperimental::class)
-  private fun registerGeofenceObserver() {
-    geofencingService.addObserver(geofencingAppObserver) { result ->
-      if (result.isError) {
-        Log.e("Geofencing", "Failed to add observer: ${result.error})")
-      }
-    }
-  }
+
 
 
 
