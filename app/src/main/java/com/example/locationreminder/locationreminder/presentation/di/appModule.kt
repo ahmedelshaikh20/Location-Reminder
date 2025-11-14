@@ -10,6 +10,9 @@ import com.example.locationreminder.locationreminder.domain.NotificationService
 import com.example.locationreminder.locationreminder.domain.repository.ReminderRepository
 import com.example.locationreminder.locationreminder.domain.usecases.GetAllRemindersUseCase
 import com.example.locationreminder.locationreminder.domain.usecases.HandleGeofenceTransitionUseCase
+import com.example.locationreminder.locationreminder.domain.usecases.RegisterAllGeofencesUseCase
+import com.example.locationreminder.locationreminder.domain.usecases.RegisterGeofenceUseCase
+import com.example.locationreminder.locationreminder.domain.usecases.RemoveGeofenceUseCase
 import com.example.locationreminder.locationreminder.domain.usecases.SaveReminderUseCase
 import com.example.locationreminder.locationreminder.presentation.geofencing.GeofencingAppObserver
 import com.example.locationreminder.locationreminder.presentation.mapscreen.MapBoxScreenViewmodel
@@ -27,6 +30,10 @@ val appModule = module {
   single<GeofencingAppObserver> {
     GeofencingAppObserver(get())
   }
+
+
+  single { RegisterGeofenceUseCase(get()) }
+  single { RemoveGeofenceUseCase(get()) }
 
   single<GeofencingService> {
     GeofencingFactory.getOrCreate()
@@ -74,11 +81,15 @@ val appModule = module {
     }
 
     factory {
-      HandleGeofenceTransitionUseCase(get(), get())
+      HandleGeofenceTransitionUseCase(get(), get(),get())
+    }
+
+    factory {
+      RegisterAllGeofencesUseCase(get(),get())
     }
 
     viewModel {
-      MapBoxScreenViewmodel(saveReminderUseCase = get())
+      MapBoxScreenViewmodel(saveReminderUseCase = get() )
 
     }
 
