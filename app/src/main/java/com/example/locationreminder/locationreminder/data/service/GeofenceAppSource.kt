@@ -11,7 +11,15 @@ import com.mapbox.geojson.Feature
 
 @OptIn(MapboxExperimental::class)
 class GeofenceAppSource (private val geofencingService: GeofencingService) {
-
+  fun removeAllFeatures(){
+    geofencingService.clearFeatures(){
+        if(it.isError){
+          Log.e("GeofenceAppSource", "Failed to clear features error: ${it.error}")
+        }else {
+          Log.e("GeofenceAppSource", "Success to clear features")
+        }
+    }
+  }
   fun removeFeature(id: String){
     geofencingService.removeFeature(id) {result ->
         if(result.isError){
