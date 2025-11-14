@@ -3,6 +3,7 @@ package com.example.locationreminder.locationreminder.presentation.geofencing
 
 import android.util.Log
 import com.example.locationreminder.locationreminder.domain.usecases.HandleGeofenceTransitionUseCase
+import com.example.locationreminder.locationreminder.presentation.service.LocationMonitoringService
 import com.mapbox.annotation.MapboxExperimental
 import com.mapbox.common.geofencing.GeofencingError
 import com.mapbox.common.geofencing.GeofencingEvent
@@ -18,11 +19,20 @@ class GeofencingAppObserver(private val handleTransitionUseCase: HandleGeofenceT
     private val coroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private val TAG = "GeofenceObserver"
 
+
     override fun onEntry(event: GeofencingEvent) {
         val featureId = event.feature.id() ?: return
+      val eventTime = event.timestamp
 
-        Log.d(TAG, "onEntry() called with: feature id = $featureId")
+      val diff = eventTime.time - LocationMonitoringService.serviceStartTime
 
+      Log.d(TAG, "onEntry id=$featureId eventTime=$eventTime serviceStart=${LocationMonitoringService.serviceStartTime} diff=$diff")
+
+      // Ignore startup events for first 5 seconds
+      if (diff < 5000) {
+        Log.d(TAG, "Startup entry ignored for id=$featureId")
+        return
+      }
         coroutineScope.launch {
             handleTransitionUseCase.execute(featureId)
         }
