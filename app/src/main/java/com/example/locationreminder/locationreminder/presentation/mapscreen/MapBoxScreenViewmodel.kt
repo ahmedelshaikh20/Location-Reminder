@@ -7,22 +7,26 @@ import com.example.locationreminder.locationreminder.domain.usecases.SaveReminde
 import com.example.locationreminder.locationreminder.presentation.model.ReminderDisplay
 import com.example.locationreminder.locationreminder.presentation.model.ReminderStatus
 import com.example.locationreminder.locationreminder.presentation.model.toDomainModel
+import com.example.locationreminder.navigation.NavigationEvent
 import com.mapbox.geojson.Point
 import com.mapbox.search.autocomplete.PlaceAutocomplete
-import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 
-class MapBoxScreenViewmodel(val saveReminderUseCase: SaveReminderUseCase) : ViewModel()  {
+class MapBoxScreenViewmodel(private val saveReminderUseCase: SaveReminderUseCase) : ViewModel()  {
 
   private val _loadedState = MutableStateFlow(MapBoxScreenState())
   val loadedState : StateFlow<MapBoxScreenState> = _loadedState.asStateFlow()
 
+  private val _eventFlow = MutableSharedFlow<NavigationEvent>()
+  val eventFlow = _eventFlow.asSharedFlow()
 
 
   init {
@@ -52,7 +56,9 @@ class MapBoxScreenViewmodel(val saveReminderUseCase: SaveReminderUseCase) : View
             )
           }
           reminderDisplay?.let {
-            saveReminderUseCase.execute(reminderDisplay.toDomainModel())
+            val domainReminder = it.toDomainModel()
+            saveReminderUseCase.execute(domainReminder)
+            _eventFlow.emit(NavigationEvent.Back)
           }
         }
       }

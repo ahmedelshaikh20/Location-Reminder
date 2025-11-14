@@ -1,6 +1,7 @@
 package com.example.locationreminder.locationreminder.presentation.mapscreen
 
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -25,6 +26,8 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.locationreminder.locationreminder.presentation.common.ReminderInputContent
+import com.example.locationreminder.locationreminder.presentation.service.LocationMonitoringService
+import com.example.locationreminder.navigation.NavigationEvent
 import com.mapbox.maps.MapboxExperimental
 import com.mapbox.maps.extension.compose.MapEffect
 import com.mapbox.maps.extension.compose.MapboxMap
@@ -35,6 +38,7 @@ import com.mapbox.maps.plugin.gestures.OnMapClickListener
 import com.mapbox.maps.plugin.gestures.addOnMapClickListener
 import com.mapbox.maps.plugin.locationcomponent.createDefault2DPuck
 import com.mapbox.maps.plugin.locationcomponent.location
+import kotlinx.coroutines.flow.collectLatest
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(MapboxExperimental::class)
@@ -42,13 +46,11 @@ import org.koin.compose.viewmodel.koinViewModel
 fun MapBoxScreen(viewmodel: MapBoxScreenViewmodel= koinViewModel(), navController: NavController, reminderId: Long?) {
   val localContext = LocalContext.current
   val state by viewmodel.loadedState.collectAsStateWithLifecycle()
-
   val launcher = rememberLauncherForActivityResult(
     contract = ActivityResultContracts.RequestMultiplePermissions()
   ) { permissionsList ->
     val isGranted = permissionsList.values.all { it }
     if (isGranted) {
-      // Go to your location
     } else {
     }
   }
@@ -60,9 +62,20 @@ fun MapBoxScreen(viewmodel: MapBoxScreenViewmodel= koinViewModel(), navControlle
     }
   }
 
+  LaunchedEffect(Unit) {
+    viewmodel.eventFlow.collectLatest {
+      when(it){
+        NavigationEvent.Back -> {navController.popBackStack()}
+      }
+    }
+
+  }
+
   MapBoxContent(state, onEventClicked = { viewmodel.onEvent(it) })
 
 }
+
+
 
 
 @OptIn(MapboxExperimental::class)
@@ -121,7 +134,8 @@ fun MapBoxContent(state : MapBoxScreenState , onEventClicked: (MapBoxScreenEvent
 
 val permissions = listOf(
   android.Manifest.permission.ACCESS_COARSE_LOCATION,
-  android.Manifest.permission.ACCESS_FINE_LOCATION
+  android.Manifest.permission.ACCESS_FINE_LOCATION,
+  android.Manifest.permission.FOREGROUND_SERVICE_LOCATION
 )
 
 fun isPermissionGranted(context: Context, permissions: List<String>): Boolean {
