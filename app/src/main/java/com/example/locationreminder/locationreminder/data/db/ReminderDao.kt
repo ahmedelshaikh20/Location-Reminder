@@ -16,13 +16,15 @@ interface ReminderDao {
   @Query("SELECT * FROM reminders WHERE id = :reminderId")
   suspend fun getReminderById(reminderId: Int): ReminderEntity?
 
-  @Update
-  suspend fun updateReminder(reminder : ReminderEntity)
+  @Query("UPDATE reminders SET isActive = :isActive WHERE id = :id")
+  suspend fun updateStatus(id: Int, isActive: Boolean)
 
   @Query("SELECT * FROM reminders WHERE isActive = 1 ORDER BY id DESC")
   fun getAllActiveReminders(): Flow<List<ReminderEntity>>
 
   @Query("SELECT * FROM reminders ORDER BY id DESC")
   fun getAllReminders(): Flow<List<ReminderEntity>>
+
+
 
 }

@@ -8,4 +8,5 @@ interface ReminderRepository {
   suspend fun saveReminder(reminder: Reminder)
   suspend fun getAllActiveReminders():Flow<List<Reminder>>
   suspend fun getReminderById(id:Int):Reminder
+  suspend fun updateReminderStatus(id: Int, isActive: Boolean)
 }

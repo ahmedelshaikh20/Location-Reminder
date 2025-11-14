@@ -23,7 +23,9 @@ class ReminderService(private val reminderDao: ReminderDao ) {
     return reminderDao.getReminderById(id)
   }
 
-
+  suspend fun updateReminder(id: Int , status: Boolean) {
+    reminderDao.updateStatus(id, status )
+  }
 
 }
 

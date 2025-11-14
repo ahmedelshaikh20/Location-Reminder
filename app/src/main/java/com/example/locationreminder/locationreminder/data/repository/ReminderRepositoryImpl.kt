@@ -30,5 +30,10 @@ class ReminderRepositoryImpl(private val reminderService: ReminderService, priva
     return reminderService.getReminderById(id)?.toDomain() ?: throw Exception("Reminder not found")
   }
 
+  override suspend fun updateReminderStatus(id: Int, isActive: Boolean) {
+    reminderService.updateReminder(id, isActive)
+  }
+
+
 
 }
