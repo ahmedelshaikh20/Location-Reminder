@@ -4,6 +4,12 @@ A **modern Android application** that allows users to create **location-based re
 
 Built using **Jetpack Compose**, **Mapbox Maps & Geofencing SDK**, **Foreground Location Services**, **Koin DI**, **Room Database**, and **Kotlin Coroutines / Flow**.
 
+# Demo
+
+[Location Reminder Demo](https://github.com/user-attachments/assets/39acfab3-1856-4fea-9c77-f661801b7fe1)
+
+
+
 ---
 
 ## 🚀 Quick Start (Setup Instructions)
