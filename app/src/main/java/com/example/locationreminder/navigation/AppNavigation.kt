@@ -2,10 +2,13 @@ package com.example.locationreminder.navigation
 
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.navigation.compose.NavHost
@@ -22,6 +25,24 @@ fun AppNavigation() {
   val navController = rememberNavController()
   val context = LocalContext.current
 
+  val permissionsToRequest = remember {
+    val permissions = mutableListOf(
+      android.Manifest.permission.ACCESS_COARSE_LOCATION,
+      android.Manifest.permission.ACCESS_FINE_LOCATION,
+      android.Manifest.permission.FOREGROUND_SERVICE_LOCATION,
+    )
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+      permissions.add(android.Manifest.permission.POST_NOTIFICATIONS)
+    }
+    permissions.toTypedArray()
+  }
+
+  fun allPermissionsGranted(ctx: Context): Boolean {
+    return permissionsToRequest.all {
+      ContextCompat.checkSelfPermission(ctx, it) == PackageManager.PERMISSION_GRANTED
+    }
+  }
+
 
   val launcher = rememberLauncherForActivityResult(
     ActivityResultContracts.RequestMultiplePermissions()
@@ -31,11 +52,12 @@ fun AppNavigation() {
     }
   }
 
+
   LaunchedEffect(Unit) {
-    if (areLocationPermissionsGranted(context)) {
+    if (allPermissionsGranted(context)) {
       startMonitoringService(context)
     } else {
-      launcher.launch(permissionsArray)
+      launcher.launch(permissionsToRequest)
     }
   }
   NavHost(
@@ -62,8 +84,4 @@ private fun startMonitoringService(context: Context) {
   ContextCompat.startForegroundService(context, intent)
 }
 
-val permissionsArray = arrayOf(
-  android.Manifest.permission.ACCESS_COARSE_LOCATION,
-  android.Manifest.permission.ACCESS_FINE_LOCATION,
-  android.Manifest.permission.FOREGROUND_SERVICE_LOCATION,
-)
+

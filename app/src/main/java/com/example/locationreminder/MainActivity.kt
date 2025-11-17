@@ -26,35 +26,17 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.GlobalContext.startKoin
 
 class MainActivity : ComponentActivity() {
-  val requestNotificationPermission =
-    registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-      if (isGranted) {
-        Toast.makeText(this, "Notification permission granted ✅", Toast.LENGTH_SHORT).show()
-      } else {
-        Toast.makeText(this, "Notifications disabled ❌", Toast.LENGTH_SHORT).show()
-      }
-    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-      askNotificationPermissionIfNeeded()
+      super.onCreate(savedInstanceState)
 
       enableEdgeToEdge()
         setContent {
-
             LocationReminderTheme {
                 AppNavigation()
             }
         }
     }
-  private fun askNotificationPermissionIfNeeded() {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-      val permission = Manifest.permission.POST_NOTIFICATIONS
-      if (ContextCompat.checkSelfPermission(this, permission)
-        != PackageManager.PERMISSION_GRANTED
-      ) {
-        requestNotificationPermission.launch(permission)
-      }
-    }
-  }
+
 }
 
